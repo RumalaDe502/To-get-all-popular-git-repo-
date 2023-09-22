@@ -9,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -17,21 +16,24 @@ import java.util.stream.Collectors;
 
 @Service
 public class GitHubService {
-    private static final String GITHUB_API_URL = "https://api.github.com/search/repositories?q=created:2019-01-10&sort=stars&order=desc";
 
     @Autowired
-    private RestTemplate restTemplate;
+    RestTemplate restTemplate;
 
     /**
      * The service provides:
      * A list of the most popular repositories, sorted by number of stars.
      * An option to be able to view the top 10, 50, 100 repositories should be available.
      * Given a date, the most popular repositories created from this date onwards should be returned.
-     * @param size
-     * @param date
-     * @return
+     * @param size no of views
+     * @param date given date
+     * @param language programming language
+     * @return list of items
      */
-    public List<GitHubRepo> getPopularRepositories(int size, String date) {
+    public List<GitHubRepo> getPopularRepositories(int size, String date, String language) {
+        //repo from given date
+        String GITHUB_API_URL = "https://api.github.com/search/repositories?q=created:>" +date+
+                "&sort=stars&order=desc";
         ResponseEntity<GitHubRepoResponse> response = restTemplate.exchange(
                 GITHUB_API_URL,
                 HttpMethod.GET,
@@ -42,20 +44,14 @@ public class GitHubService {
         if (response.getStatusCode() == HttpStatus.OK) {
             GitHubRepoResponse responseBody = response.getBody();
             if (responseBody != null && responseBody.getItems() != null) {
-                List<GitHubRepo> result = new ArrayList<>();
-                for(GitHubRepo item: responseBody.getItems()) {
-                    if(item.getCreatedAt().substring(0,10).equals(date)){
-                        /* will be returning value from given date */
-                        result = responseBody.getItems().stream().
-                                limit(size)  // for view limit 10,50,100
-                                .sorted(Comparator.comparing(GitHubRepo::getStars)) //sorted by stars
+                        return responseBody.getItems().stream()
+                                .limit(size)  // for view limit 10,50,100
+                                .filter(itm -> itm.getLanguage() != null && itm.getLanguage().equalsIgnoreCase(language)) // filter by programming language
+                                .sorted(Comparator.comparing(GitHubRepo::getStars).reversed()) //sorted by stars
                                 .collect(Collectors.toList());
-                    }
-                }
-                return result;
+
             }
         }
-
         return Collections.emptyList();
     }
 }

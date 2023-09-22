@@ -16,11 +16,7 @@ import java.util.List;
 public class GitHubController {
 
     @Autowired
-    private GitHubService gitHubService;
-
-    public GitHubController(GitHubService gitHubService) {
-        this.gitHubService = gitHubService;
-    }
+    GitHubService gitHubService;
 
     /**
      * This is controller to get popular git repositories from given date and no.of gits to be returned.
@@ -30,8 +26,9 @@ public class GitHubController {
      */
     @GetMapping("/popular-repos")
     public List<GitHubRepo> getPopularRepos(@RequestParam int size,
-                                            @RequestParam String date) {
-        return gitHubService.getPopularRepositories(size,date);
+                                            @RequestParam String date,
+                                            @RequestParam String language) {
+        return gitHubService.getPopularRepositories(size,date,language);
     }
 }
 
