@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,7 +22,15 @@ public class GitHubService {
     @Autowired
     private RestTemplate restTemplate;
 
-
+    /**
+     * The service provides:
+     * A list of the most popular repositories, sorted by number of stars.
+     * An option to be able to view the top 10, 50, 100 repositories should be available.
+     * Given a date, the most popular repositories created from this date onwards should be returned.
+     * @param size
+     * @param date
+     * @return
+     */
     public List<GitHubRepo> getPopularRepositories(int size, String date) {
         ResponseEntity<GitHubRepoResponse> response = restTemplate.exchange(
                 GITHUB_API_URL,
@@ -41,7 +48,7 @@ public class GitHubService {
                         /* will be returning value from given date */
                         result = responseBody.getItems().stream().
                                 limit(size)  // for view limit 10,50,100
-                                .sorted(Comparator.comparing(GitHubRepo::getStars).reversed()) //in descending orders of stars
+                                .sorted(Comparator.comparing(GitHubRepo::getStars)) //sorted by stars
                                 .collect(Collectors.toList());
                     }
                 }

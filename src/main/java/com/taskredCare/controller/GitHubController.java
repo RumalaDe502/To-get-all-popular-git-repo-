@@ -22,6 +22,12 @@ public class GitHubController {
         this.gitHubService = gitHubService;
     }
 
+    /**
+     * This is controller to get popular git repositories from given date and no.of gits to be returned.
+     * @param size no.of gits to be returned
+     * @param date given date
+     * @return
+     */
     @GetMapping("/popular-repos")
     public List<GitHubRepo> getPopularRepos(@RequestParam int size,
                                             @RequestParam String date) {
